@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>canvas图片九宫格</title>
+    <style>
+        *{margin:0;padding:0;}
+        html,body{width:100%;height:100%;background:#232323;}
+        .canvas{
+            display:block;
+            margin:0 auto;
+            /* border:1px solid #ccc; */
+        }
+    </style>
+</head>
+<body>
+    <canvas class="canvas"></canvas>
+
+    <script>
+        const cvs = document.querySelector('.canvas')
+        const ctx = cvs.getContext('2d')
+        let isEnter = false
+        const image = new Image()
+        image.src = './background.png'
+        let angle = 100
+        function drawRect(x,y,w,h){
+            ctx.beginPath()
+            ctx.lineWidth = 2
+            ctx.strokeStyle='red'
+            ctx.strokeRect(x,y,w,h)
+        }
+        function drawPic(angle){
+            ctx.clearRect(0,0,cvs.width,cvs.height)
+            const imgWidth = image.width
+            const imgHeight = image.height
+            const w_block = imgWidth / 3  
+            const h_block = imgHeight / 3
+            const _rate = angle / 100
+            const new_w_block = w_block*_rate
+            const new_h_block = h_block*_rate
+            const x = (w_block-new_w_block) / 2
+            const y = (h_block-new_h_block) / 2
+            for(let i=0;i<3;i++){
+                for(let j=0;j<3;j++){
+                    if(isEnter){
+                        drawRect(w_block*i+x,h_block*j+y,w_block*_rate,h_block*_rate)
+                    }
+                    
+                    ctx.save()
+                    ctx.drawImage(
+                        image,
+                        w_block*i,h_block*j,   
+                        w_block,h_block,    
+                        w_block*i+x,h_block*j+y,   
+                        w_block*_rate,h_block*_rate  
+                    )
+                    ctx.restore()
+
+                }
+            }
+        }
+        image.onload = function(){
+            cvs.width = image.width
+            cvs.height = image.height
+            function run(){
+                if(isEnter&&angle > 90){
+                    angle--
+                }
+                if(!isEnter&&angle < 100){
+                    angle++
+                }
+                drawPic(angle)
+                window.requestAnimationFrame(run)
+            }
+            run()
+        }
+        cvs.addEventListener('mouseenter',function(){
+            isEnter = true
+        })
+        cvs.addEventListener('mouseleave',function(){
+            isEnter = false
+        })
+    </script>
+</body>
+</html>
