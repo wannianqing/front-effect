@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *{margin:0;padding:0;}
+        html,body{width:100%;height:100%;overflow:hidden}
+        .oclick{
+            width:100%;
+            height:50px;
+            margin-top:50px;
+        }
+    </style>
+</head>
+
+<body>
+    <button class="oclick">点击</button>
+<script>
+document.querySelector('style').append(`canvas{
+   position:fixed;
+   left:0;
+   top:0;
+   z-index:999;
+}`)
+document.querySelector('style').append(`.my_btn1{
+   position:fixed;
+   width:100px;
+   height:50px;
+   right:0;
+   top:100px;
+   z-index:1000;
+}`)
+document.querySelector('style').append(`.my_btn2{
+   position:fixed;
+   width:100px;
+   height:50px;
+   right:110px;
+   top:100px;
+   z-index:1000;
+}`)
+
+const canvas = document.createElement('canvas')
+canvas.className = 'canvas'
+document.body.appendChild(canvas)
+
+const button = document.createElement('button')
+button.innerHTML = '穿透'
+button.className = 'my_btn1'
+document.body.appendChild(button)
+
+button.addEventListener('click',function(){
+    canvas.style.pointerEvents = 'none'
+})
+
+const button1 = document.createElement('button')
+button1.innerHTML = '不穿透'
+button1.className = 'my_btn2'
+document.body.appendChild(button1)
+
+button1.addEventListener('click',function(){
+    canvas.style.pointerEvents = 'auto'
+})
+
+const cvs = document.querySelector('.canvas')
+cvs.width = window.innerWidth
+cvs.height = window.innerHeight
+const ctx = cvs.getContext('2d')
+
+let rectInfo = {
+    startx: 200,
+    starty: 200,
+    width: 200,
+    height: 200,
+    endx: 400,
+    endy: 400
+}
+let anchorArrs = []
+
+function fillBlack() {
+    ctx.beginPath()
+    ctx.save()
+    ctx.fillStyle = 'rgba(0,0,0,0.95)'
+    ctx.lineWidth = 2
+    ctx.fillRect(0, 0, cvs.width, cvs.height)
+}
+fillBlack()
+
+
+function drawRect() {
+    const { startx, starty, width, height } = rectInfo
+    ctx.clearRect(startx, starty, width, height)
+    ctx.restore()
+    ctx.beginPath()
+    ctx.lineWidth = 2
+    ctx.strokeStyle = '#fff'
+    ctx.strokeRect(startx, starty, width, height)
+}
+drawRect()
+
+
+function anchors() {
+    const { startx, starty, width, height } = rectInfo
+    const r = 5
+    anchorArrs = [
+        { x: startx, y: starty, cursor: 'nwse-resize' },
+        { x: startx + width, y: starty, cursor: 'nesw-resize' },
+        { x: startx + width, y: starty + height, cursor: 'nwse-resize' },
+        { x: startx, y: starty + height, cursor: 'nesw-resize' }
+    ]
+    anchorArrs.forEach(item => {
+        ctx.beginPath()
+        ctx.strokeStyle = '#fff'
+        ctx.fillStyle = '#000'
+        ctx.arc(item.x, item.y, r, 0, 2 * Math.PI, false)
+        ctx.fill()
+        ctx.stroke()
+    })
+}
+anchors()
+let isDown = false
+let selectAnchorIndex
+let action = 'auto'
+let downPoint = {}
+cvs.addEventListener('mousedown', e => {
+    isDown = true
+    const { pageX, pageY } = e
+    const { startx, starty, width, height, endx, endy } = rectInfo
+    downPoint = { stx: pageX, sty: pageY }
+    if (selectAnchorIndex !== -1) {
+        action = 'resize'
+        downPoint.rawrect = { startx, starty, width, height, endx, endy }
+        return
+    }
+    if (pageX > startx && pageX < endx && pageY > starty && pageY < endy) {
+        action = 'move'
+        downPoint.offsetx = pageX - startx
+        downPoint.offsety = pageY - starty
+    } else {
+        action = 'auto'
+    }
+})
+cvs.addEventListener('mousemove', e => {
+    if (isDown) {
+        handleDrag(e)
+        return
+    }
+    const { pageX, pageY } = e
+    const { startx, starty, endx, endy } = rectInfo
+    let selectAnchor, selectIndex = -1
+    anchorArrs.forEach((item, i) => {
+        const { x, y } = item
+        if (Math.abs(pageX - x) <= 10 && Math.abs(pageY - y) <= 10) {
+            selectAnchor = item
+            selectIndex = i
+        }
+    })
+    selectAnchorIndex = selectIndex
+    if (selectAnchor) {
+        document.body.style.cursor = selectAnchor.cursor
+        return
+    }
+
+    if (pageX > startx && pageX < endx && pageY > starty && pageY < endy) {
+        document.body.style.cursor = 'move'
+    } else {
+        document.body.style.cursor = 'auto'
+    }
+
+})
+document.documentElement.addEventListener('mouseup', () => {
+    isDown = false
+})
+function handleDrag(e) {
+    const { pageX, pageY } = e
+    const { stx, sty, offsetx, offsety } = downPoint
+    let { startx, starty, width, height, endx, endy } = rectInfo
+    if (action === 'move') {
+        ctx.clearRect(0, 0, cvs.width, cvs.height)
+        const newx = pageX - offsetx
+        const newy = pageY - offsety
+        rectInfo.startx = newx
+        rectInfo.starty = newy
+        rectInfo.endx = newx + width
+        rectInfo.endy = newy + height
+        fillBlack()
+        drawRect()
+        anchors()
+    }
+    if (action === 'resize') {
+        ctx.clearRect(0, 0, cvs.width, cvs.height)
+        console.log(pageY - sty)
+        const rawrect = downPoint.rawrect
+        let newWidth = rawrect.width,
+            newHeight = rawrect.height,
+            newStartx = rawrect.startx,
+            newStarty = rawrect.starty,
+            newEndx = rawrect.endx,
+            newEndy = rawrect.endy
+        if (selectAnchorIndex === 0) {
+            newWidth = rawrect.width - (pageX - stx)
+            newHeight = rawrect.height - (pageY - sty)
+            newStartx = rawrect.startx + (pageX - stx)
+            newStarty = rawrect.starty + (pageY - sty)
+        }
+        if (selectAnchorIndex === 1) {
+            newWidth = rawrect.width + pageX - stx
+
+            newHeight = rawrect.height - (pageY - sty)
+            newStarty = rawrect.starty + (pageY - sty)
+        }
+        if (selectAnchorIndex === 2) {
+            newWidth = rawrect.width + pageX - stx
+            newHeight = rawrect.height + pageY - sty
+            newEndx = rawrect.endx + pageX - stx
+            newEndy = rawrect.endy + pageY - sty
+        }
+        if (selectAnchorIndex === 3) {
+            newWidth = rawrect.width - (pageX - stx)
+            newHeight = rawrect.height + (pageY - sty)
+            newStartx = rawrect.startx + (pageX - stx)
+        }
+
+
+        rectInfo.width = newWidth
+        rectInfo.height = newHeight
+        rectInfo.startx = newStartx
+        rectInfo.starty = newStarty
+        rectInfo.endx = newEndx
+        rectInfo.endy = newEndy
+        fillBlack()
+        drawRect()
+        anchors()
+    }
+}
+</script>
+</body>
+
+</html>
