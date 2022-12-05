@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    *{margin:0;padding:0;}
+    .canvas{
+      display:block;
+      margin:30px auto;
+      border:1px solid #ccc;
+    }
+    .button-group{
+      position:absolute;
+      left:50%;
+      top:0;
+      transform:translateX(-50%);
+    }
+  </style>
+</head>
+<body>
+  <canvas class="canvas" width="600" height="500"></canvas>
+  <script>
+    class Rectangle{
+      constructor(options){
+        this.type = 'rectangle'
+        this.x = options.x || 0
+        this.y = options.y || 0
+        this.width = options.width || 100
+        this.height = options.height || 100
+        this.fillStyle = options.fillStyle || 'rgb(0,0,0)'
+        this.zIndex = options.zIndex || 0
+        this.offsetX = this.offsetY = 0
+      }
+      draw(ctx){
+        const {x,y,width,height,fillStyle} = this
+        ctx.beginPath()
+        ctx.rect(x,y,width,height)
+        ctx.fillStyle = fillStyle
+        ctx.fill()
+      }
+      isPointInPath(clickPointX,clickPointY){
+        const { x, y, width, height } = this
+        return clickPointX > x && clickPointX < x+width && clickPointY > y && clickPointY < y+height
+      }
+      pointOffset(pointX,pointY){
+        const { x, y } = this
+        this.offsetX = pointX - x
+        this.offsetY = pointY - y
+      }
+      setPosition(posX,posY){
+        const { offsetX, offsetY } = this
+        this.x = posX - offsetX
+        this.y = posY - offsetY
+      }
+    }
+
+    const cvs = document.querySelector('.canvas')
+    const ctx = cvs.getContext('2d')
+
+    let shapeList = [
+      new Rectangle({
+        x:100,
+        y:100
+      }),
+      new Rectangle({
+        x:150,
+        y:150,
+        fillStyle:'red'
+      }),
+      new Rectangle({
+        x:200,
+        y:200,
+        fillStyle:'blue'
+      }),
+      new Rectangle({
+        x:130,
+        y:200,
+        fillStyle:'yellow'
+      })
+    ]
+    // shapeList.push(new Rectangle({}))
+
+    function drawShape(){
+      ctx.clearRect(0,0,cvs.width,cvs.height)
+      shapeList.forEach(shape => {
+        shape.draw(ctx)
+      })
+    }
+
+    function animationFrame(){
+      window.requestAnimationFrame(()=>{
+        drawShape()
+        animationFrame()
+      })
+    }
+    animationFrame()
+
+    let activeShape = null
+    cvs.addEventListener('mousedown',(event)=>{
+      const x = event.offsetX
+      const y = event.offsetY
+      let pointList = []
+      shapeList.forEach(shape => {
+        const isPoint = shape.isPointInPath(x,y)
+        isPoint&&pointList.push(shape)
+      })
+      if(pointList.length){
+        // 对选中的图形排序，zIndex越大的图形，数组索引越小，目的是取到最上层的图形
+        pointList.sort((a,b) => b.zIndex - a.zIndex)
+        // 取到最上层的图形
+        activeShape = pointList[0]
+        // 将选中的图形的zIndex 在最大的zIndex基础上加1
+        activeShape.zIndex = Math.max(...shapeList.map(shape => shape.zIndex)) + 1
+        // 对图形列表重新排序，zIndex越小的图形，数组索引越小
+        shapeList.sort((a, b) => a.zIndex - b.zIndex)
+        activeShape.pointOffset(x,y)
+      }
+    })
+
+    cvs.addEventListener('mousemove',(event)=>{
+      if(activeShape){
+        const x = event.offsetX
+        const y = event.offsetY
+        activeShape.setPosition(x,y)
+      }
+    })
+
+    const clearActiveShape = function(){
+      activeShape = null
+    }
+    cvs.addEventListener('mouseup',clearActiveShape)
+    cvs.addEventListener('mouseleave',clearActiveShape)
+    
+  </script>
+</body>
+</html>

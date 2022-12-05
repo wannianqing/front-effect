@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    *{margin:0;padding:0;}
+    .canvas{
+      display:block;
+      margin:30px auto;
+      border:1px solid #ccc;
+    }
+    .button-group{
+      position:absolute;
+      left:50%;
+      top:0;
+      transform:translateX(-50%);
+    }
+  </style>
+</head>
+<body>
+  <canvas class="canvas" width="600" height="500"></canvas>
+  <script>
+    class Rectangle{
+      constructor(options){
+        this.type = 'rectangle'
+        this.x = options.x || 0
+        this.y = options.y || 0
+        this.width = options.width || 100
+        this.height = options.height || 100
+        this.fillStyle = options.fillStyle || 'rgb(0,0,0)'
+        this.zIndex = options.zIndex || 0
+        this.offsetX = this.offsetY = 0
+      }
+      draw(ctx){
+        const {x,y,width,height,fillStyle} = this
+        ctx.beginPath()
+        ctx.rect(x,y,width,height)
+        ctx.fillStyle = fillStyle
+        ctx.fill()
+      }
+      isPointInPath(pointX,pointY){
+        const { x, y, width, height } = this
+        return pointX > x && pointX < x+width && pointY > y && pointY < y+height
+      }
+      pointOffset(pointX,pointY){
+        const { x, y } = this
+        this.offsetX = pointX - x
+        this.offsetY = pointY - y
+      }
+      setPosition(posX,posY){
+        const { offsetX, offsetY } = this
+        this.x = posX - offsetX
+        this.y = posY - offsetY
+      }
+    }
+
+    const cvs = document.querySelector('.canvas')
+    const ctx = cvs.getContext('2d')
+
+    const rect = new Rectangle({
+      x:100,
+      y:100
+    })
+
+    function drawShape(){
+      ctx.clearRect(0,0,cvs.width,cvs.height)
+      rect.draw(ctx)
+    }
+
+    function animationFrame(){
+      window.requestAnimationFrame(()=>{
+        drawShape()
+        animationFrame()
+      })
+    }
+    animationFrame()
+
+    let activeShape = null
+    cvs.addEventListener('mousedown',(event)=>{
+      const x = event.offsetX
+      const y = event.offsetY
+      const isPoint = rect.isPointInPath(x,y)
+      activeShape = isPoint ? rect : null
+      if(activeShape){
+        activeShape.pointOffset(x,y)
+      }
+    })
+
+    cvs.addEventListener('mousemove',(event)=>{
+      if(activeShape){
+        const x = event.offsetX
+        const y = event.offsetY
+        activeShape.setPosition(x,y)
+      }
+    })
+
+    const clearActiveShape = function(){
+      activeShape = null
+    }
+    cvs.addEventListener('mouseup',clearActiveShape)
+    cvs.addEventListener('mouseleave',clearActiveShape)
+    
+  </script>
+</body>
+</html>
