@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    *{margin:0;padding:0;}
+    html,body{width:100%;height:100%;overflow:hidden;}
+    .btn-group{
+      position:absolute;
+      top:20px;
+      left:50%;
+      transform:translateX(-50%);
+    }
+  </style>
+</head>
+<body>
+  <div class="btn-group">
+    <button class="random">随机生成</button>
+    <button class="undo">撤销</button>
+  </div>
+  <canvas class="canvas"></canvas>
+
+  <script src="./rect.js"></script>
+  <script>
+    const cvs = document.querySelector('.canvas')
+    const ctx = cvs.getContext('2d')
+    cvs.width = window.innerWidth
+    cvs.height = window.innerHeight 
+
+    function randomAttr(){
+      const fillColor = `hsl(${Math.floor(Math.random()*360)},70%,60%)`
+      const x = Math.floor(Math.random()*(cvs.width - 100))
+      const y = Math.floor(Math.random()*(cvs.height - 100))
+
+      return { fillColor, x, y }
+    }
+
+    function generateRandom(){
+      const {fillColor, x, y} = randomAttr()
+      new Rect(ctx,{
+        fill:fillColor,
+        x,
+        y
+      })
+    }
+    let history = []
+    document.querySelector('.random').addEventListener('click',()=>{
+      const imgdata = ctx.getImageData(0,0,cvs.width,cvs.height)
+      history.push(imgdata)
+      generateRandom()
+    })
+
+    document.querySelector('.undo').addEventListener('click',()=>{
+      if(history.length === 0) return
+      ctx.putImageData(history[history.length-1],0,0)
+      history.pop()
+    })
+
+    
+
+        let isDown = false
+        cvs.addEventListener('mousedown',e=>{
+            const imgdata = ctx.getImageData(0,0,cvs.width,cvs.height)
+            history.push(imgdata)
+            ctx.beginPath()
+            ctx.lineWidth = 10
+            ctx.moveTo(e.offsetX,e.offsetY)
+            isDown = true
+        })
+
+        cvs.addEventListener('mousemove',e=>{
+            if(isDown){
+                ctx.lineTo(e.offsetX,e.offsetY)
+                ctx.stroke()
+            }
+        })
+
+        document.documentElement.addEventListener('mouseup',e=>{
+            isDown = false
+        })
+    
+  </script>
+</body>
+</html>

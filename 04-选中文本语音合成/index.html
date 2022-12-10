@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>文本选中朗读</title>
+  <style>
+    .text{text-align:center;font-size:22px;}
+  </style>
+</head>
+<body>
+  <div class="text">
+    <p>有一美人兮，见之不忘。</p>
+    <p>一日不见兮，思之如狂。</p>
+    <p>凤飞翱翔兮，四海求凰。</p>
+    <p>无奈佳人兮，不在东墙。</p>
+    <p>将琴代语兮，聊写衷肠。</p>
+    <p>何日见许兮，慰我彷徨。</p>
+    <p>愿言配德兮，携手相将。</p>
+    <p>不得於飞兮，使我沦亡。</p>
+  </div>
+  <script>
+    const synthesis = window.speechSynthesis;
+
+    document.addEventListener('mouseup',()=>{
+      const txt = window.getSelection().toString()
+      const utterance = new SpeechSynthesisUtterance(txt)
+      synthesis.speak(utterance)
+    })
+  </script>
+</body>
+</html>

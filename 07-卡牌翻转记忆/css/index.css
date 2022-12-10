@@ -1,0 +1,79 @@
+*{margin:0;padding:0;line-height:0;}
+html,body{
+  width:100%;
+  height:100%;
+  background:url(../img/bg.png),hsl(340,10%,5%);
+}
+.wrapper{
+    width:100%;
+    height:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+.wrap-content{
+    width:650px;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:space-between;
+}
+.card{
+  width:140px;
+  height:165px;
+  margin-bottom:10px;
+  position:relative;
+  border-radius:4px;
+  transition:transform 1s ease;
+  transform:perspective(500px) rotateY(0deg);
+  transform-style:preserve-3d;
+}
+.card-3{
+  height:100px;
+}
+.card-4{
+  height:85px;
+}
+.card.flip{
+  transform:perspective(500px) rotateY(180deg);
+}
+.face{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  border-radius:10px;
+  backface-visibility:hidden;
+}
+.face{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:40px;
+  font-weight:bold;
+  color:#fff;
+}
+.front{
+  background:rgb(39 149 222);
+}
+.back{
+  background:rgb(241, 75, 125);
+  transform:rotateY(180deg);
+}
+.card-mask{
+  position:absolute;
+  left:0;
+  top:0;
+  right:0;
+  bottom:0;
+  z-index:99;
+}
+
+.countdown{
+  position:fixed;
+  top:50px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:40px;
+  color:#fff;
+}
