@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    *{margin:0;padding:0;}
+    ul,li{list-style-type:none;}
+    .btn-group{ width:500px; height:8px; margin:0 auto; display:flex; justify-content:space-between; }
+    .btn-group li{
+      width:100px;
+      height:100%;
+      border-radius:10px;
+      background:#999;
+      cursor:pointer;
+    }
+    li.active{
+      background:red;
+    }
+    .wrap{
+      width:1000px;
+      height:450px;
+      margin:100px auto 20px;
+      transform-style:preserve-3d;
+      perspective: 800px;
+    }
+    .wrap li{
+      width:50px;
+      height:100%;
+      float:left;
+      transform:translateZ(-225px);
+      transform-style:preserve-3d;
+    }
+    .wrap li span{
+      display:block;
+      width:100%;
+      height:100%;
+      position:absolute;
+      left:0;
+      top:0;
+    }
+    .wrap li span:nth-child(1){
+      transform:translateZ(225px);
+      background:url(./haizei-1.png) no-repeat;
+    }
+    .wrap li span:nth-child(2){
+      background:url(./haizei-2.png) no-repeat;
+      transform:translateZ(225px) rotateX( 90deg);
+      transform-origin:bottom;
+      top:-100%;
+    }
+    .wrap li span:nth-child(3){
+      background:url(./haizei-3.png) no-repeat;
+      transform:translateZ(-225px) rotateX(180deg);
+      
+    }
+    .wrap li span:nth-child(4){
+      background:url(./haizei-4.png) no-repeat;
+      transform:translateZ(225px) rotateX(-90deg);
+      transform-origin:top;
+    }
+  </style>
+</head>
+<body>
+  <ul class="wrap">
+  </ul>
+  <ul class="btn-group">
+    <li data-id="0" class="active"></li>
+    <li data-id="1"></li>
+    <li data-id="2"></li>
+    <li data-id="3"></li>
+  </ul>
+
+  <script>
+    const oBtn = document.querySelector('.btn-group')
+    const oWrap = document.querySelector('.wrap')
+
+    const liNum = 1
+    var html = ''
+    for(var i=0;i<liNum;i++){
+      html+= `
+      <li>
+        <span style="background-position:-${50*i}px 0"></span>
+        <span style="background-position:-${50*i}px 0"></span>
+        <span style="background-position:-${50*i}px 0"></span>
+        <span style="background-position:-${50*i}px 0"></span>
+      </li>
+      `
+    }
+
+    oWrap.innerHTML = html
+
+    
+    oBtn.onclick = function(e){
+      const index = e.target.dataset.id
+      const btns = oBtn.children
+      for(let i=0;i<btns.length;i++){
+        btns[i].classList.remove('active')
+      }
+      btns[index].classList.add('active')
+
+      const lis = oWrap.children 
+
+      for(let i=0;i<liNum;i++){
+        lis[i].style.transition = '1s '+i*100+'ms'
+        lis[i].style.transform = "translateZ(-225px) rotateX("+ -90*index+"deg)"
+      }
+      
+    }
+  </script>
+</body>
+</html>

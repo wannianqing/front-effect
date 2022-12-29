@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音频可视化</title>
+    <style>
+      *{margin:0;padding:0;}
+      html,body{
+        width:100%;
+        height:100%;
+        overflow:hidden;
+      }
+      .wrap{
+        position:fixed;
+        top:0;
+        left:50%;
+        transform:translateX(-50%);
+      }
+      .btn{
+        width:60px;
+        height:30px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <audio class="audio" controls>
+        <source src="./test.mp3">
+      </audio>
+      <button class="btn">播放</button>
+    </div>
+    <canvas class="canvas"></canvas>
+
+    <script>
+      const myAudio = document.querySelector('.audio')
+      const oBtn = document.querySelector('.btn')
+      const cvs = document.querySelector('.canvas')
+      const ctx = cvs.getContext('2d')
+
+      cvs.width = innerWidth 
+      cvs.height = innerHeight
+
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const audioCtx = new AudioContext()
+
+      const track = new MediaElementAudioSourceNode(audioCtx,{
+        mediaElement:myAudio
+      })
+      const gainNode = new GainNode(audioCtx)
+      const analyser = new AnalyserNode(audioCtx)
+      track.connect(gainNode).connect(analyser).connect(audioCtx.destination);
+
+      analyser.fftSize = 128
+      let bufferLength = analyser.frequencyBinCount;
+      let dataArray = new Uint8Array(bufferLength)
+
+      let isPlay = false
+
+      oBtn.addEventListener('click',function(){
+        if(audioCtx.state === 'suspended'){
+          audioCtx.resume().then(() => run(drawGraph))
+        }
+        if(!isPlay){
+          myAudio.play()
+          isPlay=true
+        }else{
+          myAudio.pause()
+          isPlay=false
+        }
+        
+      })
+
+      function run(func){
+        window.requestAnimationFrame(run.bind(this,func))
+        analyser.getByteFrequencyData(dataArray);
+        console.log(dataArray)
+        func()
+      }
+
+      function drawGraph(){
+        ctx.clearRect(0,0,cvs.width,cvs.height)
+        const bar_w = cvs.width / bufferLength;
+        for (let i = 0; i < bufferLength; i++) {
+          let bar_x = i * bar_w;
+          let bar_h = (dataArray[i] / 255) * cvs.height;
+          let bar_y = cvs.height - bar_h;
+          ctx.beginPath()
+          ctx.fillStyle = `rgb(${dataArray[i]}, ${dataArray[i+1]}, ${dataArray[i+2]})`;
+          ctx.fillRect(bar_x, bar_y, bar_w, bar_h);
+        }
+      }
+    </script>
+  </body>
+</html>

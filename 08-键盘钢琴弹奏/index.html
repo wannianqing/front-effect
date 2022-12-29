@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="./index.css">
+</head>
+<body>
+  <div class="board-box">
+    <div class="board-wrap"></div>
+    <div class="controls">
+      <button class="btn">天空之城</button>
+    </div>
+  </div>
+  
+  <script>
+    const keyboards = [
+      { letter:'Q', code:81, num:5, note:'So', pitch:'low', freq:392 },   //低音
+      { letter:'W', code:87, num:6, note:'La', pitch:'low', freq:440 },   //低音
+      { letter:'E', code:69, num:7, note:'Si', pitch:'low', freq:494 },   //低音
+      { letter:'R', code:82, num:5, note:'So', pitch:'low', freq:392 },   //低音
+      { letter:'T', code:84, num:6, note:'La', pitch:'low', freq:440 },   //低音
+      { letter:'Y', code:89, num:7, note:'Si', pitch:'low', freq:494 },   //低音
+      { letter:'U', code:85, num:4, note:'Fa', pitch:'mid', freq:698 },   //中音
+      { letter:'I', code:73, num:5, note:'So', pitch:'mid', freq:784 },   //中音
+      { letter:'O', code:79, num:6, note:'La', pitch:'mid', freq:880 },   //中音
+      { letter:'P', code:80, num:7, note:'Si', pitch:'mid', freq:988 },   //中音
+      { letter:'A', code:65, num:1, note:'Do', pitch:'low', freq:262 },   //低音
+      { letter:'S', code:83, num:2, note:'Re', pitch:'low', freq:294 },   //低音
+      { letter:'D', code:68, num:3, note:'Mi', pitch:'low', freq:330 },   //低音
+      { letter:'F', code:70, num:4, note:'Fa', pitch:'low', freq:349 },   //低音
+      { letter:'G', code:71, num:6, note:'La', pitch:'mid', freq:880 },   //中音
+      { letter:'H', code:72, num:7, note:'Si', pitch:'mid', freq:988 },   //中音
+      { letter:'J', code:74, num:1, note:'Do', pitch:'mid', freq:523 },   //中音
+      { letter:'K', code:75, num:2, note:'Re', pitch:'mid', freq:587 },   //中音
+      { letter:'L', code:76, num:3, note:'Mi', pitch:'mid', freq:659 },   //中音
+      { letter:'Z', code:90, num:1, note:'Do', pitch:'high', freq:1047 },   //高音
+      { letter:'X', code:88, num:2, note:'Re', pitch:'high', freq:1175 },   //高音
+      { letter:'C', code:67, num:3, note:'Mi', pitch:'high', freq:1319 },   //高音
+      { letter:'V', code:86, num:4, note:'Fa', pitch:'high', freq:1397 },   //高音
+      { letter:'B', code:66, num:5, note:'So', pitch:'high', freq:1568 },   //高音
+      { letter:'N', code:78, num:6, note:'La', pitch:'high', freq:1760 },   //高音
+      { letter:'M', code:77, num:7, note:'Si', pitch:'high', freq:1947 }   //高音
+    ]
+    const boardWrap = document.querySelector('.board-wrap')
+    // 创建每一行的键盘dom
+    function createLetterDom(list){
+      const letterBox = document.createElement('div')
+      letterBox.className = 'letter-box'
+      let html = ''
+      for(let i=0;i<list.length;i++){
+        html+=`
+        <span data-hz="${list[i].freq}">
+          <i class="letter">${list[i].letter}</i>
+          <i class="note ${list[i].pitch === 'high' ? 'high' : (list[i].pitch === 'low' ? 'low' : '')}">${list[i].num}</i>
+        </span>
+        `
+      }
+      letterBox.innerHTML = html
+      boardWrap.appendChild(letterBox)
+    }
+    // 渲染键盘
+    function renderBoard(){
+      const rowOne = keyboards.slice(0,10)
+      const rowTwo = keyboards.slice(10,19)
+      const rowThree = keyboards.slice(19,26)
+      createLetterDom(rowOne)
+      createLetterDom(rowTwo)
+      createLetterDom(rowThree)
+    }
+    renderBoard()
+
+    const spans = document.querySelectorAll('span')
+    // 发出声音
+    function sound(freq){
+      //创建 AudioContext 上下文对象
+      const AuidoContext = window.AudioContext || window.webkitAudioContext;
+      const audioCtx = new AudioContext()
+      //创建振荡器对象
+      const oscillatorNode = audioCtx.createOscillator()
+
+      const analyser = audioCtx.createAnalyser()
+      //创建音量控制对象
+      const gainNode = audioCtx.createGain()
+      //振荡器连接到声音控制， 声音控制连接到输出设备
+      oscillatorNode.connect(gainNode)
+      gainNode.connect(audioCtx.destination)
+
+      //设置波形
+      oscillatorNode.type = 'sine'
+      //设置振荡器频率
+      oscillatorNode.frequency.setValueAtTime(freq,audioCtx.currentTime)
+      oscillatorNode.start(audioCtx.currentTime)
+      oscillatorNode.stop(audioCtx.currentTime + 1)
+
+      gainNode.gain.setValueAtTime(0,audioCtx.currentTime)
+      gainNode.gain.linearRampToValueAtTime(1,audioCtx.currentTime+0.01)
+      gainNode.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+1)
+
+        oscillatorNode.onended = () => {
+          audioCtx.close()
+        }
+    }
+    // 键盘按下触发
+    document.addEventListener('keydown',(e)=>{
+      const keycode = e.keyCode 
+      const keyObj = keyboards.find(item => item.code === keycode)
+      const index = keyboards.findIndex(item => item.code === keycode)
+      if(keyObj){
+        const freq = keyObj.freq
+        sound(freq)
+        spans[index].className = 'active'
+      }
+    })
+    // 键盘抬起清除className
+    document.addEventListener('keyup',(e)=>{
+      const keycode = e.keyCode 
+      const index = keyboards.findIndex(item => item.code === keycode)
+      if(index>-1){
+        spans[index].className = ''
+      }
+    })
+    // 鼠标点击触发
+    for(let i=0;i<spans.length;i++){
+      spans[i].addEventListener('mousedown',()=>{
+        
+        spans[i].className = 'active'
+        const freq = spans[i].dataset.hz
+        sound(freq)
+      })
+
+      spans[i].addEventListener('mouseup',()=>{
+        spans[i].className = ''
+      })
+    }
+    
+    const keys = ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Z', 'X', 'C', 'V', 'B', 'N', 'M']
+    // 自动播放
+    function autoPlay(){
+      /*
+        第一句：W=E-J-E=J-L-E
+        第二句：D W Q W J Q
+        第三句：D D F D F J D
+        第四句：J J E F F E E
+        第五句：W=E-J-E=J-L-E
+        第六句：D-W-Q=W-J-Q
+        第七句：S=D-F-J-E--J=K-K-L-J
+        第八句：J=E-W=W-E-Q-W
+        第九句：J=K-L-K=L-I-K
+        第十句：0-J-J=E-J-L-L
+        第十一句：W=E-J-E=J-K-J-Q=Q
+        第十二句：U-L-K-J=L--L
+        第十三句：O-O=I-I=L=K-J-J
+        第十四句：K-J=K-I-L---
+        第十五句：O-O=I-I=L=K-J-
+        第十六句：K-J=K-I-L
+        第十七句：O-O=I-I=L=K-J
+        第十八句：K-J=K-E=W
+
+        串起来 W=E-J-E=J-L-E D-W-Q=W-J-Q D=D-F-D=F-J-D J=J-E-F=F-E-E 0 W=E-J-E=J-L-E D-W-Q=W-J-Q S=D-F-J-E--J=K-K-L-J J=E-W=W-E-Q-W J=K-L-K=L-I-K 0-J-J=E-J-L-L W=E-J-E=J-K-J-Q=Q U-L-K-J=L--L O-O=I-I=L=K-J-J K-J=K-I-L--- O-O=I-I=L=K-J- K-J=K-I-L O-O=I-I=L=K-J K-J=K-E=W
+      */
+      const sheetMusicStr = 'W=E-J-E=J-L-E D-W-Q=W-J-Q D=D-F-D=F-J-D J=J-E-F=F-E-E 0 W=E-J-E=J-L-E D-W-Q=W-J-Q S=D-F-J-E--J=K-K-L-J J=E-W=W-E-Q-W J=K-L-K=L-I-K 0-J-J=E-J-L-L W=E-J-E=J-K-J-Q=Q U-L-K-J=L--L O-O=I-I=L=K-J-J K-J=K-I-L--- O-O=I-I=L=K-J- K-J=K-I-L O-O=I-I=L=K-J K-J=K-E=W'
+      const sheetMusic = sheetMusicStr.split('')
+      const len = sheetMusic.length
+      let delayTime = 1000 * 60;
+      (async ()=>{
+        let i = 0;
+        while(i<len){
+          const index = keys.indexOf(sheetMusic[i])
+          if(index !== -1){
+            const keyObj = keyboards[index]
+            const freq = keyObj.freq
+            sound(freq)
+            spans[index].className = 'active'
+            setTimeout(()=>{
+              spans[index].className = ''
+            },300)
+          }else{
+            switch (sheetMusic[i]) {
+              case '0': break;
+              case '-': await sleep(delayTime / (2 * 60)); break;
+              case '=': await sleep(delayTime / (4 * 60)); break; 
+              default: await sleep(delayTime / 60); break;
+            }
+          }
+          i++
+        }
+      })()
+    }
+
+    function sleep(ms) {
+      return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+      });
+    }
+
+    document.querySelector('.btn').addEventListener('click',function(){
+      autoPlay()
+    })
+  </script>
+</body>
+</html>

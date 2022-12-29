@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    *{margin:0;padding:0;}
+    ul,li{list-style-type:none;}
+    .btn-group{ width:500px; height:8px; margin:0 auto; display:flex; justify-content:space-between; }
+    .btn-group li{
+      width:100px;
+      height:100%;
+      border-radius:10px;
+      background:#999;
+      cursor:pointer;
+    }
+    li.active{
+      background:red;
+    }
+    .wrap{
+      width:800px;
+      height:450px;
+      margin:100px auto 20px;
+      transform-style:preserve-3d;
+      perspective: 480px;
+    }
+    .wrap li{
+      width:40px;
+      height:100%;
+      float:left;
+      transform-style:preserve-3d;
+    }
+    .wrap li span{
+      display:block;
+      width:100%;
+      height:100%;
+      position:absolute;
+      left:0;
+      top:0;
+    }
+    .wrap li span:nth-child(1){
+      background:url(./haizei-1.png) no-repeat;
+    }
+    .wrap li span:nth-child(2){
+      background:url(./haizei-2.png) no-repeat;
+      transform:rotateX(90deg);
+      transform-origin:bottom;
+    }
+    .wrap li span:nth-child(3){
+      background:url(./haizei-3.png) no-repeat;
+      transform:translateZ(-450px) rotateX(180deg);
+      
+    }
+    .wrap li span:nth-child(4){
+      background:url(./haizei-4.png) no-repeat;
+      transform:rotateX(-90deg);
+      transform-origin:top;
+    }
+  </style>
+</head>
+<body>
+  <ul class="wrap">
+    <li>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+    </li>
+  </ul>
+  <ul class="btn-group">
+    <li data-id="0" class="active"></li>
+    <li data-id="1"></li>
+    <li data-id="2"></li>
+    <li data-id="3"></li>
+  </ul>
+
+  <script>
+    const oBtn = document.querySelector('.btn-group')
+    const oWrap = document.querySelector('.wrap')
+    
+    oBtn.onclick = function(e){
+      const index = e.target.dataset.id
+      const btns = oBtn.children
+      for(let i=0;i<btns.length;i++){
+        btns[i].classList.remove('active')
+      }
+      btns[index].classList.add('active')
+
+      const lis = oWrap.children 
+      lis[0].style.transition = '1s'
+      lis[0].style.transform = "rotateX("+ -90*index+"deg)"
+    }
+  </script>
+</body>
+</html>

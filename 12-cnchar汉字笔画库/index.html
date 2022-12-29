@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>汉字拼音笔画</title>
+  <style>
+    *{margin:0;padding:0;}
+    html,body{width:100%;height:100%;overflow:hidden;font-size:20px;}
+    .wrapper{ width:500px; margin:100px auto;}
+    .words-input{display:flex;width:100%;justify-content:center;}
+    .words-input .input{ flex:1; flex-basis:;height:40px; border:1px solid #ccc; border-radius:4px; outline:none; font-size:30px;text-indent:8px; }
+    .search{ width:100px; height:42px; border:1px solid #ccc; background:#54dde7; border-radius:4px; margin-left:10px; outline:none; cursor:pointer; }
+    .search:hover{ background:#2fb1ba; color:#fff;}
+    .poly-box{ display:flex;margin-top:20px;}
+    .poly-box .poly,.poly-box .stroke{ color:#999; }
+    .poly-box span{ margin-right:15px;}
+    #words-decompose{ margin-top:15px; }
+    .words-wrap{display:flex;align-items:flex-end;margin-top:15px;}
+    .words-btns{margin-left:15px;display:none;}
+    .words-btns.show{display:block;}
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="words-input">
+      <input type="text" class="input">
+      <button class="search">确认</button>
+    </div>
+    <div class="words-wrap">
+      <div id="words1"></div>
+      <button class="words-btns">书写</button>
+    </div>
+    <div id="words-decompose"></div>
+    <div class="poly-box">
+      <div class="title">拼音：</div>
+      <div class="poly"></div>
+    </div>
+    <div class="poly-box">
+      <div class="title">笔画：</div>
+      <div class="stroke"></div>
+    </div>
+  </div>
+
+  <script src="https://fastly.jsdelivr.net/npm/cnchar-all/cnchar.all.min.js"></script>
+  <script>
+    const oInput = document.querySelector('.input')
+    const oSearch = document.querySelector('.search')
+    
+    oSearch.addEventListener('click',()=>{
+      const words = oInput.value.trim()
+      const spell = cnchar.spell(words,'tone','poly')
+      const stroke = cnchar.stroke(words,'order','name')
+      renderStroke(stroke)
+      renderPoly(spell)
+      renderWords(words)
+      decompose(words)
+    })
+
+    function renderWords(words){
+      const writer = cnchar.draw(words,{
+        el:'#words1',
+        type:cnchar.draw.TYPE.ANIMATION,
+        animation:{
+          autoAnimate: true
+        }
+      })
+      const btn = document.querySelector('.words-btns')
+      btn.classList.add('show')
+      btn.addEventListener('click',()=>{
+        writer.startAnimation()
+      })
+    }
+
+    function decompose(words){
+      cnchar.draw(words,{
+        el:'#words-decompose',
+        type:cnchar.draw.TYPE.STROKE
+      })
+    }
+
+    function renderStroke(stroke){
+      const wordsStroke = stroke[0]
+      let html=''
+      wordsStroke.forEach(item => {
+        html+=`
+          <span>${item}</span>
+        `
+      })
+      document.querySelector('.stroke').innerHTML = html
+    }
+
+    function renderPoly(poly){
+      const reg = /[\(\)]/g
+      const polyArr = poly.replace(reg,'')
+      let html=''
+      polyArr.split('|').forEach(item => {
+        html+=`
+          <span>${item}</span>
+        `
+      })
+      document.querySelector('.poly').innerHTML = html
+    }
+  </script>
+</body>
+</html>
