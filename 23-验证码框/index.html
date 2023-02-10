@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>验证码输入框</title>
+  <link rel="stylesheet" href="./index.css">
+  <style>
+    .input-wrap{
+      position:relative;
+    }
+    .input-content{
+      width:100%;
+      height:100%;
+      display:flex;
+    }
+    .input-item{
+      width:50px;
+      height:65px;
+      border-radius:6px;
+      margin:0 10px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      color:#fff;
+      font-size:20px;
+      background:#282828;
+      border:1px solid #282828;
+      position:relative;
+    }
+    .input-item.active{
+      border:1px solid #fff;
+    }
+    .input-item.active::after{
+      content:'';
+      width:1px;
+      height:30px;
+      background:#fff;
+      animation: flicker 0.5s infinite alternate;
+    }
+    .visible{
+      position:absolute;
+      left:0;
+      right:0;
+      top:0;
+      bottom:0;
+      z-index:2;
+      opacity:0;
+    }
+    .visible:valid{
+      border:1px solid red;
+    }
+    @keyframes flicker{
+      0%{
+        opacity:0;
+      }
+      100%{
+        opacity:1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="input-wrap">
+    <input type="text" class="visible">
+    <div class="input-content">
+      <p class="input-item"></p>
+      <p class="input-item"></p>
+      <p class="input-item"></p>
+      <p class="input-item"></p>
+      <p class="input-item"></p>
+      <p class="input-item"></p>
+    </div>
+  </div>
+  <script>
+    const oInput = document.querySelector('.visible')
+    const items = document.querySelectorAll('.input-item')
+
+    const reg = /^[0-9]{0,6}$/
+    let prevVal;
+
+    oInput.addEventListener('focus',(e)=>{
+      const val = oInput.value;
+      if(!val){
+        items[0].classList.add('active')
+        return
+      }
+      if(val.length<items.length){
+        items[val.length].classList.add('active')
+      }
+      if(val.length==items.length){
+        items[val.length-1].classList.add('active')
+      }
+    })
+    oInput.addEventListener('blur',(e)=>{
+      items.forEach(item => {
+        item.classList.remove('active')
+      })
+    }) 
+    oInput.addEventListener('input',(e)=>{
+      const val = e.target.value
+      if(reg.test(val)){
+        prevVal = val
+      }else{
+        oInput.value = prevVal
+      }
+      const arr = oInput.value.split('')
+      
+      items.forEach(item=>{
+        item.textContent = ''
+        item.classList.remove('active')
+      })
+      if(!arr.length){
+        items[0].classList.add('active')
+        return
+      }
+      
+      arr.forEach((item,idx) => {
+        items[idx].textContent = item
+        items[idx].classList.remove('active')
+        if(items[idx+1]){
+          items[idx+1].classList.add('active')
+        }
+        if(idx == items.length-1){
+          items[idx].classList.add('active')
+        }
+      })
+    })
+  </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>sticky-footer</title>
+  <link rel="stylesheet" href="./index.css">
+  <style>
+    .wrapper{
+      min-height: 100%;
+    }
+    .content{
+      padding-bottom:120px;
+    }
+    .footer{
+      margin-top: -120px;
+      /* position:fixed;
+      bottom:0; */
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="content">
+      <div class="header">顶部header</div>
+      <div class="container"></div>
+    </div>
+  </div>
+  <footer class="footer">
+    底部footer
+  </footer>
+
+  <script>
+    const content = document.querySelector('.container');
+    let html = ''
+    for(let i=0;i<6;i++){
+      html+=`<section class="section">页面内容${i+1}</section>`
+    }
+    content.innerHTML = html
+  </script>
+</body>
+</html>

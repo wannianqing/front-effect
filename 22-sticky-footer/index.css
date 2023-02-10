@@ -1,0 +1,36 @@
+*{margin:0;padding:0;}
+html,body{ 
+  width:100%; 
+  height:100%; 
+  box-sizing: border-box;
+}
+
+.footer,.header{ 
+  font-size:30px; 
+  display:flex; 
+  justify-content:center;
+  align-items:center;width:100%;
+  height:120px;
+  color:#fff;
+  background:#222;
+}
+
+.container{
+  padding:20px;
+}
+
+.container .section{
+  width:100%;
+  height:200px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:35px;
+}
+
+.content .section:nth-child(odd){
+  background-color: rgb(245, 148, 20);
+}
+.content .section:nth-child(even){
+  background-color: aqua;
+}

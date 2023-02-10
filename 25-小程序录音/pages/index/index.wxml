@@ -1,0 +1,9 @@
+<!--index.wxml-->
+<view class="container">
+  <view class="record">
+    <view class="progress" bindtap="tapRecordingBtn">
+      <image class="record-btn" mode="aspectFit" src="/images/dub_record.png"></image>
+      <canvas class="circle" canvas-id="canvasArcCir"></canvas>
+    </view>
+  </view>
+</view>

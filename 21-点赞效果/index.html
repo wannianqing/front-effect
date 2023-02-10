@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>点赞效果</title>
+  <link rel="stylesheet" href="//at.alicdn.com/t/c/font_3847986_3smt62ihmpp.css">
+  <link rel="stylesheet" href="./index.css">
+</head>
+<body>
+  <div class="bg-content"></div>
+  <script>
+    const wrap = document.querySelector('.bg-content')
+    let clicktime = 0
+    wrap.addEventListener('click',(e) => {
+      if(clicktime === 0){
+        clicktime = new Date().getTime()
+      }else{
+        if(new Date().getTime() - clicktime < 500){
+          handleCreateHeart(e)
+          clicktime = 0
+        }else{
+          clicktime = new Date().getTime()
+        }
+      }
+    })
+    function handleCreateHeart(e){
+      const heart = document.createElement('i')
+      heart.className = 'iconfont icon-hongxin'
+      const x = e.clientX
+      const y = e.clientY
+
+      const left = e.target.offsetLeft
+      const top = e.target.offsetTop 
+
+      const clickX = x - left
+      const clickY = y - top
+
+      heart.style.left = clickX+'px'
+      heart.style.top = clickY+'px'
+
+      wrap.appendChild(heart)
+
+      setTimeout(() => heart.remove(),800)
+    }
+  </script>
+</body>
+</html>

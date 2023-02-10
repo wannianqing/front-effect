@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>列表无限滚动</title>
+  <link rel="stylesheet" href="./index.css">
+</head>
+<body>
+  <div class="list-wrap">
+    <ul class="list">
+      
+      <li class="list-item2">国防部新闻发言人吴谦就预备役人员法答记者问</li>
+      <li class="list-item3">XBB等变异株会引发新一轮感染高峰？中疾控解答</li>
+      <li class="list-item4">中疾控：国内目前暂未发现XBB.1.5本土病例</li>
+      <li class="list-item5">我国成功发射遥感三十七号卫星等3颗卫星</li>
+      <li class="list-item1">吴尊友：“复阳”者一般情况下不需要特殊处理</li>
+    </ul>
+  </div>
+
+  <script>
+    const oUl = document.querySelector('.list')
+    let timeId;
+    function rollup(){
+      if(timeId){
+        clearInterval(timeId)
+      }
+      timeId = setInterval(()=>{
+        const firstElement = oUl.firstElementChild
+        firstElement.classList.remove('list-item1')
+        firstElement.classList.add('hiden')
+        oUl.appendChild(firstElement)
+        // 获取所有的元素子节点
+        const elementChilds = Array.prototype.slice.call(oUl.childNodes).filter(child=>{
+          return child.nodeType === Node.ELEMENT_NODE
+        })
+        for(var i=0;i<elementChilds.length;i++){
+          elementChilds[i].className = `list-item${i+1}`
+        }
+        rollup()
+      },2000)
+    }
+    rollup()
+  </script>
+</body>
+</html>
