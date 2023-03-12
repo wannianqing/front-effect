@@ -1,5 +1,8 @@
-### 在线前端面试题脑图地址，不断完善中
+#### 面试题集脑图
+
+使用gitmind查看，如果看不了，请在粉丝群告知我处理
 
 
 
-https://www.yuque.com/g/wanwan-zibti/wm0obi/vllmeyn9lrvwhybm/collaborator/join?token=ATjoIxHJCBtZbl88# 《前端面试题集》
+链接: https://gitmind.cn/app/docs/m26gvvzq
+密码: 6180
